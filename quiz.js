@@ -7,7 +7,8 @@ const quizContent = document.getElementById('quizContent');
 const questionContainer = document.getElementById('questionContainer');
 const questionText = document.getElementById('questionText');
 const options = document.querySelectorAll('.option');
-const nextBtn = document.getElementById('nextBtn');
+const actionBtn = document.getElementById('actionBtn');
+const feedbackMessage = document.getElementById('feedbackMessage');
 const resultDiv = document.getElementById('result');
 const scoreSpan = document.getElementById('score');
 const restartBtn = document.getElementById('restartBtn');
@@ -17,9 +18,10 @@ let questions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let selectedOption = null;
+let answerSubmitted = false;
 
 // Event listeners
-nextBtn.addEventListener('click', nextQuestion);
+actionBtn.addEventListener('click', handleAction);
 restartBtn.addEventListener('click', restartQuiz);
 
 // Option selection
@@ -53,10 +55,13 @@ function resetQuizState() {
   currentQuestionIndex = 0;
   score = 0;
   selectedOption = null;
+  answerSubmitted = false;
   resultDiv.classList.add('hidden');
-  questionContainer.classList.remove('hidden');
-  noQuestionsDiv.classList.add('hidden');
   quizContent.classList.remove('hidden');
+  noQuestionsDiv.classList.add('hidden');
+  feedbackMessage.classList.add('hidden');
+  actionBtn.textContent = 'Submit Answer ✅';
+  actionBtn.disabled = true;
 }
 
 function showQuestion() {
@@ -70,22 +75,55 @@ function showQuestion() {
   // Reset selection
   options.forEach(option => option.classList.remove('selected'));
   selectedOption = null;
-  nextBtn.disabled = true;
+  answerSubmitted = false;
+  feedbackMessage.classList.add('hidden');
+  actionBtn.textContent = 'Submit Answer ✅';
+  actionBtn.disabled = true;
 }
 
 function selectOption(option) {
+  if (answerSubmitted) {
+    return;
+  }
+
   options.forEach(opt => opt.classList.remove('selected'));
   option.classList.add('selected');
   selectedOption = parseInt(option.dataset.option);
-  nextBtn.disabled = false;
+  actionBtn.disabled = false;
 }
 
-function nextQuestion() {
+function handleAction() {
+  if (!answerSubmitted) {
+    submitAnswer();
+  } else {
+    goToNextStep();
+  }
+}
+
+function submitAnswer() {
+  if (selectedOption === null) {
+    return;
+  }
+
   const question = questions[currentQuestionIndex];
   if (selectedOption === question.correct) {
     score++;
+    showFeedback('Correct! Great job! 🎉', true);
+  } else {
+    showFeedback(`Wrong answer. The correct option was ${question.correct}.`, false);
   }
 
+  answerSubmitted = true;
+  actionBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish Quiz 🏁' : 'Next Question ➡️';
+}
+
+function showFeedback(text, success) {
+  feedbackMessage.textContent = text;
+  feedbackMessage.className = success ? 'success' : 'error';
+  feedbackMessage.classList.remove('hidden');
+}
+
+function goToNextStep() {
   currentQuestionIndex++;
   if (currentQuestionIndex < questions.length) {
     showQuestion();
@@ -95,7 +133,7 @@ function nextQuestion() {
 }
 
 function showResult() {
-  questionContainer.classList.add('hidden');
+  quizContent.classList.add('hidden');
   resultDiv.classList.remove('hidden');
   scoreSpan.textContent = `${score} / ${questions.length}`;
   if (score === questions.length) {

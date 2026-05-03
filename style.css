@@ -170,7 +170,8 @@ input:focus {
   transform: scale(1.05);
 }
 
-#message {
+#message,
+#feedbackMessage {
   margin-top: 15px;
   padding: 15px;
   border-radius: 10px;
