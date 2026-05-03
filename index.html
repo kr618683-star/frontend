@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnMath Quiz Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🎉 LearnMath Quiz Hub</h1>
+    <p class="subtitle">Choose an action below to play the quiz or add a new question.</p>
+    <div class="mode-buttons">
+      <button id="playQuizBtn" class="mode-btn user-btn">▶️ Play Quiz</button>
+      <button id="addQuestionBtn" class="mode-btn admin-btn">➕ Add Question</button>
+    </div>
+    <div id="passwordMessage" class="hidden"></div>
+  </div>
+
+  <script>
+    const playQuizBtn = document.getElementById('playQuizBtn');
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const passwordMessage = document.getElementById('passwordMessage');
+    const correctPassword = 'LearnMath@123';
+
+    playQuizBtn.addEventListener('click', () => {
+      window.location.href = 'quiz.html';
+    });
+
+    addQuestionBtn.addEventListener('click', () => {
+      const password = prompt('Enter admin password to add a question:');
+      if (password === null) {
+        return; // user canceled prompt
+      }
+      if (password === correctPassword) {
+        window.location.href = 'admin.html';
+      } else {
+        passwordMessage.textContent = 'Access denied. Password is incorrect.';
+        passwordMessage.className = 'error';
+        passwordMessage.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
