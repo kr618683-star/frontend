@@ -5,6 +5,7 @@ const API_BASE_URL = 'https://backend-2xm9.onrender.com'; // Backend API URL
 const noQuestionsDiv = document.getElementById('noQuestions');
 const quizContent = document.getElementById('quizContent');
 const questionContainer = document.getElementById('questionContainer');
+const questionNumber = document.getElementById('questionNumber');
 const questionText = document.getElementById('questionText');
 const options = document.querySelectorAll('.option');
 const actionBtn = document.getElementById('actionBtn');
@@ -66,13 +67,24 @@ function resetQuizState() {
 
 function showQuestion() {
   const question = questions[currentQuestionIndex];
-  questionText.textContent = question.question;
-  options[0].textContent = `1️⃣ ${question.option1}`;
-  options[1].textContent = `2️⃣ ${question.option2}`;
-  options[2].textContent = `3️⃣ ${question.option3}`;
-  options[3].textContent = `4️⃣ ${question.option4}`;
+  if (!question) {
+    questionText.textContent = 'Question data is missing.';
+    options.forEach((opt, idx) => {
+      opt.textContent = `${idx + 1}️⃣ Option missing`;
+    });
+    actionBtn.disabled = true;
+    return;
+  }
 
-  // Reset selection
+  const correctAnswer = Number(question.correct);
+  questionNumber.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+  questionText.textContent = question.question || 'No question text available.';
+  options[0].textContent = `1️⃣ ${question.option1 || 'Option 1 missing'}`;
+  options[1].textContent = `2️⃣ ${question.option2 || 'Option 2 missing'}`;
+  options[2].textContent = `3️⃣ ${question.option3 || 'Option 3 missing'}`;
+  options[3].textContent = `4️⃣ ${question.option4 || 'Option 4 missing'}`;
+  question.correct = Number.isNaN(correctAnswer) ? null : correctAnswer;
+
   options.forEach(option => option.classList.remove('selected'));
   selectedOption = null;
   answerSubmitted = false;
@@ -106,11 +118,13 @@ function submitAnswer() {
   }
 
   const question = questions[currentQuestionIndex];
-  if (selectedOption === question.correct) {
+  const correctAnswer = Number(question.correct);
+  if (selectedOption === correctAnswer) {
     score++;
     showFeedback('Correct! Great job! 🎉', true);
   } else {
-    showFeedback(`Wrong answer. The correct option was ${question.correct}.`, false);
+    const answerText = Number.isInteger(correctAnswer) ? ` ${correctAnswer}` : '';
+    showFeedback(`Wrong answer.${answerText ? ` The correct option was${answerText}.` : ''}`, false);
   }
 
   answerSubmitted = true;
